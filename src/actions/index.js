@@ -25,9 +25,20 @@ export const fetchPostsAndUsers = () => async (dispatch, getState) => {
     // Now has info about fetchPosts, so we can use this info to call fetchUser. 
     // _.map get's an array of all the userIDs
     // _.uniq returns only the first occurence of each element, in this case, only 1 unique ID per posts, even though we have 10 posts for each ID.
-    const uniqueUserID = _.uniq(_.map(getState().posts, 'userId'));
-    uniqueUserID.forEach(id => dispatch(fetchUser(id)));
- };
+    // const uniqueUserID = _.uniq(_.map(getState().posts, 'userId'));
+    // uniqueUserID.forEach(id => dispatch(fetchUser(id)));
+    
+    // Lodash function that allows us to reduce the syntax, by doing the following steps:
+    _.chain(getState().posts)
+        // Chain passes these parameters automatically, so the below is equivalent to: .map(getState().posts,'userID')
+        .map('userId')
+        // Below is equivalent to: .uniq(_.map(getState().posts,'userID'))
+        .uniq()
+        // Below is equivalent to: .forEach(_.uniq(_.map(getState().posts,'userID')));
+        .forEach(id => dispatch(fetchUser(id)))
+        // .value is required to show results. Could have been called execute.
+        .value();
+};
  
 
 // Hard syntax and not very understandable. (Problem: Not a reusable action if we want to make another actioncreater that doesn't want the 1 call per parameter restriction)
